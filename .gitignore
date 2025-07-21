@@ -1,0 +1,24 @@
+# Virtual Environment
+.venv/
+env/
+venv/
+ENV/
+env.bak/
+
+# Byte-code / Compiled files
+__pycache__/
+*.pyc
+*.pyd
+*.pyo
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# Environment variables (Sensitive information)
+.env
+.flaskenv
+*.env
+
+# Logs
+*.log
+logs/
