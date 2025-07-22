@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import pandas as pd
 from datetime import date, timedelta
@@ -8,6 +9,18 @@ import joblib
 app = FastAPI(
     title="API Dự báo Tiêu thụ Nước (Full Features)",
     description="API cung cấp dự báo lượng nước tiêu thụ hàng ngày dựa trên mô hình Prophet và các yếu tố thời tiết, ngày."
+)
+
+origins = [
+    "https://prophet-water-forecasting-fe.onrender.com",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,  # Cho phép các yêu cầu từ các origin đã định nghĩa
+    allow_credentials=True, # Cho phép gửi cookie và các thông tin xác thực khác
+    allow_methods=["*"],    # Cho phép tất cả các phương thức HTTP (GET, POST, PUT, DELETE, v.v.)
+    allow_headers=["*"],    # Cho phép tất cả các header trong yêu cầu
 )
 
 # Tải mô hình đã huấn luyện
