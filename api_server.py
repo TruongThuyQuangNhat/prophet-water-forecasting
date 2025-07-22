@@ -59,6 +59,8 @@ async def predict_water_consumption_full(request: PredictionRequest):
 
     # Chuyển đổi dữ liệu đầu vào từ Pydantic models sang Pandas DataFrame
     data_for_prophet = []
+    # Lưu trữ thông tin is_holiday và is_weekend để trả về
+    additional_info = []
     for day_input in request.forecast_days:
         data_for_prophet.append({
             'ds': day_input.date,
@@ -68,6 +70,12 @@ async def predict_water_consumption_full(request: PredictionRequest):
             'Is_Holiday': day_input.is_holiday,
             'Is_Weekend': day_input.is_weekend
         })
+        additional_info.append({
+            'date': day_input.date,
+            'is_holiday': day_input.is_holiday,
+            'is_weekend': day_input.is_weekend
+        })
+
 
     future_df = pd.DataFrame(data_for_prophet)
 
@@ -82,11 +90,15 @@ async def predict_water_consumption_full(request: PredictionRequest):
 
     results = []
     for index, row in forecast.iterrows():
+        corresponding_info = next((info for info in additional_info if info['date'] == row['ds'].date()), None)
+
         results.append({
             "date": row['ds'].strftime('%Y-%m-%d'),
             "predicted_consumption": round(max(0, row['yhat']), 2),
             "lower_bound": round(max(0, row['yhat_lower']), 2),
-            "upper_bound": round(max(0, row['yhat_upper']), 2)
+            "upper_bound": round(max(0, row['yhat_upper']), 2),
+            "is_holiday": corresponding_info['is_holiday'] if corresponding_info else None,
+            "is_weekend": corresponding_info['is_weekend'] if corresponding_info else None
         })
 
     return {"predictions": results}
